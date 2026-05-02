@@ -66,18 +66,20 @@ local Remotes = {
 	Loot      = getRemote("LootService"),
 	Crafting  = getRemote("CraftingService"),
 	Boost     = getRemote("BoostService"),
+	Index     = getRemote("IndexService"),
 }
 
 -- ==========================================
 -- STATE
 -- ==========================================
 local Toggles = {
-	AutoMob = false, AutoLoot = false, AutoRecipe = false, AutoBoost = false,
+	AutoMob = false, AutoLoot = false, AutoRecipe = false, AutoBoost = false, AutoIndex = false,
 	Rebirth = false, Zones = false, Equip = false, Roll = false,
 	Noclip = false, InfiniteJump = false, AntiRagdoll = false,
 }
 local Settings = { TweenSpeed = 75, WalkSpeed = 16, JumpPower = 50 }
 local BoostsToUse = { "rollSpeed", "luck", "ultraLuck", "coins" }
+local IndexRewardsList = { "basic", "shiny", "big", "huge", "inverted" }
 
 -- ==========================================
 -- AUTO LOOPS
@@ -125,6 +127,13 @@ loop("AutoRecipe", function()
 		end
 	end
 end, 3)
+
+loop("AutoIndex", function()
+	for _, rewardType in ipairs(IndexRewardsList) do
+		Remotes.Index:InvokeServer("requestClaimReward", rewardType)
+		task.wait(0.2)
+	end
+end, 5)
 
 -- WALKSPEED ENFORCER
 task.spawn(function()
@@ -291,29 +300,15 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- >> TABS
-local TabFarm = Window:CreateTab("Combat & Farm", 4483362458) -- Swords Icon
+local TabFarm = Window:CreateTab("Combat & Farm", 4483362458) 
 local TabCollect = Window:CreateTab("Loot & Boosts", 4483362458)
 local TabPlayer = Window:CreateTab("Player", 4483362458)
 local TabMisc = Window:CreateTab("Misc", 4483362458)
 
 -- >> FARM TAB
 TabFarm:CreateSection("Combat")
-TabFarm:CreateToggle({
-	Name = "Auto Tween Mobs",
-	CurrentValue = false,
-	Flag = "AutoMobToggle",
-	Callback = function(Value) Toggles.AutoMob = Value end,
-})
-
-TabFarm:CreateSlider({
-	Name = "Tween Speed",
-	Range = {10, 300},
-	Increment = 1,
-	Suffix = "Speed",
-	CurrentValue = 75,
-	Flag = "TweenSpeedSlider",
-	Callback = function(Value) Settings.TweenSpeed = Value end,
-})
+TabFarm:CreateToggle({ Name = "Auto Tween Mobs", CurrentValue = false, Flag = "AutoMobToggle", Callback = function(Value) Toggles.AutoMob = Value end })
+TabFarm:CreateSlider({ Name = "Tween Speed", Range = {10, 300}, Increment = 1, Suffix = "Speed", CurrentValue = 75, Flag = "TweenSpeedSlider", Callback = function(Value) Settings.TweenSpeed = Value end })
 
 TabFarm:CreateSection("Progression")
 TabFarm:CreateToggle({ Name = "Auto Rebirth", CurrentValue = false, Flag = "RebirthT", Callback = function(V) Toggles.Rebirth = V end })
@@ -326,6 +321,9 @@ TabCollect:CreateSection("Drops & Crafting")
 TabCollect:CreateToggle({ Name = "Auto Collect Drops", CurrentValue = false, Flag = "LootT", Callback = function(V) Toggles.AutoLoot = V end })
 TabCollect:CreateToggle({ Name = "Auto Claim Recipes", CurrentValue = false, Flag = "RecipeT", Callback = function(V) Toggles.AutoRecipe = V end })
 
+TabCollect:CreateSection("Rewards")
+TabCollect:CreateToggle({ Name = "Auto Claim Index Rewards", CurrentValue = false, Flag = "IndexT", Callback = function(V) Toggles.AutoIndex = V end })
+
 TabCollect:CreateSection("Potions")
 TabCollect:CreateToggle({ Name = "Auto Use Boosts", CurrentValue = false, Flag = "BoostT", Callback = function(V) Toggles.AutoBoost = V end })
 
@@ -335,38 +333,19 @@ TabPlayer:CreateToggle({ Name = "Noclip", CurrentValue = false, Flag = "NoclipT"
 TabPlayer:CreateToggle({ Name = "Infinite Jump", CurrentValue = false, Flag = "InfJT", Callback = function(V) Toggles.InfiniteJump = V end })
 TabPlayer:CreateToggle({ Name = "Anti Ragdoll", CurrentValue = false, Flag = "RagT", Callback = function(V) Toggles.AntiRagdoll = V end })
 
-TabPlayer:CreateSlider({
-	Name = "Walk Speed",
-	Range = {16, 250},
-	Increment = 1,
-	CurrentValue = 16,
-	Flag = "WSSlider",
-	Callback = function(Value) Settings.WalkSpeed = Value end,
-})
-
-TabPlayer:CreateSlider({
-	Name = "Jump Power",
-	Range = {50, 500},
-	Increment = 1,
-	CurrentValue = 50,
-	Flag = "JPSlider",
-	Callback = function(Value) Settings.JumpPower = Value end,
-})
+TabPlayer:CreateSlider({ Name = "Walk Speed", Range = {16, 250}, Increment = 1, CurrentValue = 16, Flag = "WSSlider", Callback = function(Value) Settings.WalkSpeed = Value end })
+TabPlayer:CreateSlider({ Name = "Jump Power", Range = {50, 500}, Increment = 1, CurrentValue = 50, Flag = "JPSlider", Callback = function(Value) Settings.JumpPower = Value end })
 
 TabPlayer:CreateSection("Teleports")
 TabPlayer:CreateButton({ Name = "Teleport to Spawn", Callback = function()
 	local spawn = workspace:FindFirstChildWhichIsA("SpawnLocation")
 	local c = LocalPlayer.Character
-	if c and c:FindFirstChild("HumanoidRootPart") and spawn then
-		c.HumanoidRootPart.CFrame = spawn.CFrame + Vector3.new(0, 5, 0)
-	end
+	if c and c:FindFirstChild("HumanoidRootPart") and spawn then c.HumanoidRootPart.CFrame = spawn.CFrame + Vector3.new(0, 5, 0) end
 end})
 
 TabPlayer:CreateButton({ Name = "Teleport to Safe Zone (0,0,0)", Callback = function()
 	local c = LocalPlayer.Character
-	if c and c:FindFirstChild("HumanoidRootPart") then
-		c.HumanoidRootPart.CFrame = CFrame.new(0, 10, 0)
-	end
+	if c and c:FindFirstChild("HumanoidRootPart") then c.HumanoidRootPart.CFrame = CFrame.new(0, 10, 0) end
 end})
 
 -- >> MISC TAB
@@ -375,10 +354,7 @@ TabMisc:CreateButton({ Name = "Server Hop", Callback = function() ServerHop() en
 TabMisc:CreateButton({ Name = "Rejoin Server", Callback = function() RejoinServer() end })
 TabMisc:CreateButton({ Name = "Reset Character", Callback = function()
 	local c = LocalPlayer.Character
-	if c then
-		local h = c:FindFirstChild("Humanoid")
-		if h then h.Health = 0 end
-	end
+	if c then local h = c:FindFirstChild("Humanoid") if h then h.Health = 0 end end
 end})
 
 TabMisc:CreateSection("System")
@@ -388,11 +364,44 @@ TabMisc:CreateButton({ Name = "Unload UI", Callback = function()
 	if eye then eye:Destroy() end
 end})
 
--- Custom Drag & Click Logic
+-- ==========================================
+-- DRAGGABLE EYE TOGGLE (MOBILE SUPPORT)
+-- ==========================================
+local uiParent = (pcall(function() return CoreGui.Name end) and CoreGui) or LocalPlayer:WaitForChild("PlayerGui")
+local EyeGui = Instance.new("ScreenGui")
+EyeGui.Name = "DuckyEyeToggle"
+EyeGui.ResetOnSpawn = false
+EyeGui.Parent = uiParent
+
+local EyeBtn = Instance.new("TextButton")
+EyeBtn.Size = UDim2.new(0, 45, 0, 45)
+EyeBtn.Position = UDim2.new(0, 15, 0.5, -22)
+EyeBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+EyeBtn.Text = "👁"
+EyeBtn.TextColor3 = Color3.fromRGB(212, 175, 55)
+EyeBtn.TextSize = 22
+EyeBtn.AutoButtonColor = false
+EyeBtn.Parent = EyeGui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(1, 0)
+Corner.Parent = EyeBtn
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(212, 175, 55)
+Stroke.Thickness = 1.5
+Stroke.Parent = EyeBtn
+
 local dragging = false
 local dragStart = nil
 local startPos = nil
 local dragDistance = 0
+
+EyeBtn.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true; dragStart = input.Position; startPos = EyeBtn.Position; dragDistance = 0
+	end
+end)
 
 UserInputService.InputChanged:Connect(function(input)
 	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
@@ -407,16 +416,12 @@ UserInputService.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		if dragging then
 			dragging = false
-			
-			-- If they dragged less than 10 pixels, treat it as a CLICK
 			if dragDistance < 10 then
 				uiHidden = not uiHidden
-			
-				-- Native Rayfield Toggle logic (Find Rayfield's ScreenGui and hide it)
+				if uiHidden then EyeBtn.Text = "🙈" Stroke.Color = Color3.fromRGB(150, 50, 50)
+				else EyeBtn.Text = "👁" Stroke.Color = Color3.fromRGB(212, 175, 55) end
 				for _, gui in ipairs(uiParent:GetChildren()) do
-					if gui.Name == "Rayfield" then
-						gui.Enabled = not uiHidden
-					end
+					if gui.Name == "Rayfield" then gui.Enabled = not uiHidden end
 				end
 			end
 		end
