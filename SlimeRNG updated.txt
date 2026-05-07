@@ -1,0 +1,1199 @@
+﻿-- Ducky Hub Advanced | by Aditya
+-- discord.gg/s6qfm7uycS
+
+
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser")
+local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+local GuiService = game:GetService("GuiService")
+local Workspace = game:GetService("Workspace")
+
+
+local LocalPlayer = Players.LocalPlayer
+
+
+-- ==========================================
+-- CUSTOM KEY SYSTEM & 12H SAVE LOGIC
+-- ==========================================
+local VALID_KEYS = {
+    "BeanOnTop"
+}
+
+
+local keyName = "DuckyCustomKey.txt"
+local timeFile = "DuckyKey_Time.txt"
+local keyPassed = false
+
+
+if isfile and readfile then
+    if isfile(timeFile) and isfile(keyName) then
+        local savedTime = tonumber(readfile(timeFile))
+        local savedKey = readfile(keyName)
+        if savedTime and (os.time() - savedTime < 43200) then 
+            for _, v in ipairs(VALID_KEYS) do
+                if v == savedKey then
+                    keyPassed = true
+                    break
+                end
+            end
+        else
+            if delfile then pcall(delfile, keyName); pcall(delfile, timeFile) end
+        end
+    end
+end
+
+
+if not keyPassed then
+    local keyGui = Instance.new("ScreenGui")
+    keyGui.Name = "DuckyKeySystem"
+    keyGui.ResetOnSpawn = false
+    keyGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    keyGui.Parent = CoreGui
+
+
+    local blur = Instance.new("Frame")
+    blur.Size = UDim2.new(1,0,1,0)
+    blur.BackgroundColor3 = Color3.fromRGB(5,5,10)
+    blur.BackgroundTransparency = 1 
+    blur.BorderSizePixel = 0
+    blur.ZIndex = 1
+    blur.Parent = keyGui
+
+
+    local card = Instance.new("Frame")
+    card.Size = UDim2.new(0,420,0,310)
+    card.AnchorPoint = Vector2.new(0.5,0.5)
+    card.Position = UDim2.new(0.5,0,0.5,0)
+    card.BackgroundColor3 = Color3.fromRGB(10,10,16)
+    card.BorderSizePixel = 0
+    card.ZIndex = 2
+    card.Parent = keyGui
+
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0,14)
+    corner.Parent = card
+
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(212,175,55)
+    stroke.Thickness = 1.5
+    stroke.Transparency = 0.3
+    stroke.Parent = card
+
+
+    local topBar = Instance.new("Frame")
+    topBar.Size = UDim2.new(1,0,0,4)
+    topBar.BackgroundColor3 = Color3.fromRGB(212,175,55)
+    topBar.BorderSizePixel = 0
+    topBar.ZIndex = 3
+    topBar.Parent = card
+    Instance.new("UICorner", topBar).CornerRadius = UDim.new(0,4)
+
+
+    local logo = Instance.new("TextLabel")
+    logo.Size = UDim2.new(1,0,0,40)
+    logo.Position = UDim2.new(0,0,0,16)
+    logo.BackgroundTransparency = 1
+    logo.Text = "🦆 DUCKY HUB"
+    logo.TextColor3 = Color3.fromRGB(212,175,55)
+    logo.TextSize = 22
+    logo.Font = Enum.Font.GothamBold
+    logo.ZIndex = 3
+    logo.Parent = card
+
+
+    local sub = Instance.new("TextLabel")
+    sub.Size = UDim2.new(1,0,0,20)
+    sub.Position = UDim2.new(0,0,0,54)
+    sub.BackgroundTransparency = 1
+    sub.Text = "Key Authentication Required"
+    sub.TextColor3 = Color3.fromRGB(160,160,160)
+    sub.TextSize = 13
+    sub.Font = Enum.Font.Gotham
+    sub.ZIndex = 3
+    sub.Parent = card
+
+
+    local div = Instance.new("Frame")
+    div.Size = UDim2.new(0.85,0,0,1)
+    div.AnchorPoint = Vector2.new(0.5,0)
+    div.Position = UDim2.new(0.5,0,0,82)
+    div.BackgroundColor3 = Color3.fromRGB(212,175,55)
+    div.BackgroundTransparency = 0.7
+    div.BorderSizePixel = 0
+    div.ZIndex = 3
+    div.Parent = card
+
+
+    local desc = Instance.new("TextLabel")
+    desc.Size = UDim2.new(0.85,0,0,50)
+    desc.AnchorPoint = Vector2.new(0.5,0)
+    desc.Position = UDim2.new(0.5,0,0,94)
+    desc.BackgroundTransparency = 1
+    desc.Text = "🔑 Keys are FREE — No ads, no payments.\nGet your key in our Discord server!"
+    desc.TextColor3 = Color3.fromRGB(200,200,200)
+    desc.TextSize = 13
+    desc.Font = Enum.Font.Gotham
+    desc.TextWrapped = true
+    desc.TextXAlignment = Enum.TextXAlignment.Center
+    desc.ZIndex = 3
+    desc.Parent = card
+
+
+    local discordBtn = Instance.new("TextButton")
+    discordBtn.Size = UDim2.new(0.85,0,0,34)
+    discordBtn.AnchorPoint = Vector2.new(0.5,0)
+    discordBtn.Position = UDim2.new(0.5,0,0,150)
+    discordBtn.BackgroundColor3 = Color3.fromRGB(88,101,242)
+    discordBtn.BorderSizePixel = 0
+    discordBtn.Text = "🔗  discord.gg/s6qfm7uycS"
+    discordBtn.TextColor3 = Color3.fromRGB(255,255,255)
+    discordBtn.TextSize = 13
+    discordBtn.Font = Enum.Font.GothamBold
+    discordBtn.ZIndex = 3
+    discordBtn.Parent = card
+    Instance.new("UICorner", discordBtn).CornerRadius = UDim.new(0,8)
+
+
+    discordBtn.MouseButton1Click:Connect(function()
+        setclipboard("https://discord.gg/s6qfm7uycS")
+        discordBtn.Text = "✅  Copied to clipboard!"
+        task.wait(2)
+        discordBtn.Text = "🔗  discord.gg/s6qfm7uycS"
+    end)
+
+
+    local keyBox = Instance.new("TextBox")
+    keyBox.Size = UDim2.new(0.85,0,0,36)
+    keyBox.AnchorPoint = Vector2.new(0.5,0)
+    keyBox.Position = UDim2.new(0.5,0,0,196)
+    keyBox.BackgroundColor3 = Color3.fromRGB(18,18,28)
+    keyBox.BorderSizePixel = 0
+    keyBox.PlaceholderText = "Enter your key here..."
+    keyBox.PlaceholderColor3 = Color3.fromRGB(90,90,100)
+    keyBox.Text = ""
+    keyBox.TextColor3 = Color3.fromRGB(220,220,220)
+    keyBox.TextSize = 13
+    keyBox.Font = Enum.Font.Gotham
+    keyBox.ClearTextOnFocus = false
+    keyBox.ZIndex = 3
+    keyBox.Parent = card
+    Instance.new("UICorner", keyBox).CornerRadius = UDim.new(0,8)
+    local keyStroke = Instance.new("UIStroke")
+    keyStroke.Color = Color3.fromRGB(212,175,55)
+    keyStroke.Thickness = 1
+    keyStroke.Transparency = 0.6
+    keyStroke.Parent = keyBox
+
+
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.Size = UDim2.new(0.85,0,0,20)
+    statusLabel.AnchorPoint = Vector2.new(0.5,0)
+    statusLabel.Position = UDim2.new(0.5,0,0,238)
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Text = ""
+    statusLabel.TextColor3 = Color3.fromRGB(255,80,80)
+    statusLabel.TextSize = 12
+    statusLabel.Font = Enum.Font.Gotham
+    statusLabel.ZIndex = 3
+    statusLabel.Parent = card
+
+
+    local submitBtn = Instance.new("TextButton")
+    submitBtn.Size = UDim2.new(0.85,0,0,36)
+    submitBtn.AnchorPoint = Vector2.new(0.5,0)
+    submitBtn.Position = UDim2.new(0.5,0,0,260)
+    submitBtn.BackgroundColor3 = Color3.fromRGB(212,175,55)
+    submitBtn.BorderSizePixel = 0
+    submitBtn.Text = "UNLOCK"
+    submitBtn.TextColor3 = Color3.fromRGB(10,10,16)
+    submitBtn.TextSize = 14
+    submitBtn.Font = Enum.Font.GothamBold
+    submitBtn.ZIndex = 3
+    submitBtn.Parent = card
+    Instance.new("UICorner", submitBtn).CornerRadius = UDim.new(0,8)
+
+
+    local function validateKey(input)
+        for _, v in ipairs(VALID_KEYS) do
+            if v == input then return true end
+        end
+        return false
+    end
+
+
+    submitBtn.MouseButton1Click:Connect(function()
+        if validateKey(keyBox.Text) then
+            statusLabel.TextColor3 = Color3.fromRGB(80, 255, 80)
+            statusLabel.Text = "Authentication Successful! Loading Hub..."
+            if writefile then
+                pcall(writefile, keyName, keyBox.Text)
+                pcall(writefile, timeFile, tostring(os.time()))
+            end
+            task.wait(1)
+            keyGui:Destroy()
+            keyPassed = true
+        else
+            statusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+            statusLabel.Text = "Invalid Key! Please check your discord."
+        end
+    end)
+end
+
+
+repeat task.wait(0.2) until keyPassed
+
+
+-- ==========================================
+-- MAIN SCRIPT EXECUTIONS
+-- ==========================================
+
+
+local function formatNumber(value)
+    value = tonumber(value) or 0
+    if value >= 1e12 then return string.format("%.2fT", value / 1e12)
+    elseif value >= 1e9 then return string.format("%.2fB", value / 1e9)
+    elseif value >= 1e6 then return string.format("%.2fM", value / 1e6)
+    elseif value >= 1e3 then return string.format("%.2fK", value / 1e3)
+    end
+    return tostring(math.floor(value))
+end
+
+
+local function normalizeDisplayName(text)
+    text = tostring(text or "")
+    text = text:gsub("_", " ")
+    text = text:gsub("-", " ")
+    text = text:gsub("(%l)(%u)", "%1 %2")
+    text = text:gsub("^%s+", ""):gsub("%s+$", "")
+    return text:gsub("(%S)(%S*)", function(first, rest)
+        return first:upper() .. rest:lower()
+    end)
+end
+
+
+for _, name in ipairs({"DuckyHubUI", "CleanAutoFarmUI", "Rayfield", "DuckyBlackScreen"}) do
+    local old = (CoreGui:FindFirstChild(name) or (LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild(name)))
+    if old then old:Destroy() end
+end
+
+
+local blackScreenGui = Instance.new("ScreenGui")
+blackScreenGui.Name = "DuckyBlackScreen"
+blackScreenGui.IgnoreGuiInset = true
+blackScreenGui.DisplayOrder = 9999
+blackScreenGui.Enabled = false
+blackScreenGui.Parent = CoreGui
+
+
+local blackFrame = Instance.new("Frame")
+blackFrame.Size = UDim2.new(1, 0, 1, 0)
+blackFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+blackFrame.Parent = blackScreenGui
+
+
+local afkText = Instance.new("TextLabel")
+afkText.Size = UDim2.new(1, 0, 1, 0)
+afkText.BackgroundTransparency = 1
+afkText.Text = "DUCKY HUB AFK MODE ACTIVE\n\n(Screen is black to save power & reduce lag)"
+afkText.TextColor3 = Color3.fromRGB(150, 150, 150)
+afkText.Font = Enum.Font.GothamBold
+afkText.TextSize = 24
+afkText.Parent = blackFrame
+
+
+pcall(function() GuiService:SetGameplayPausedNotificationEnabled(false) end)
+
+
+local promptOverlay = CoreGui:WaitForChild("RobloxPromptGui"):WaitForChild("promptOverlay")
+promptOverlay.ChildAdded:Connect(function(child)
+    if child.Name == "ErrorPrompt" then
+        task.wait(3)
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    end
+end)
+
+
+local function RejoinServer()
+    TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+end
+
+
+local function ServerHop()
+    local req = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+    if not req then return warn("Executor does not support HTTP requests for Server Hop.") end
+    local res = req({Url = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"})
+    if res and res.StatusCode == 200 then
+        local body = HttpService:JSONDecode(res.Body)
+        if body and body.data then
+            local servers = {}
+            for _, v in pairs(body.data) do
+                if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.id ~= game.JobId then
+                    table.insert(servers, v.id)
+                end
+            end
+            if #servers > 0 then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LocalPlayer)
+            else
+                RejoinServer()
+            end
+        end
+    end
+end
+
+
+pcall(function()
+    for _, conn in pairs(getconnections(LocalPlayer.Idled)) do conn:Disable() end
+end)
+LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+
+local Packages = ReplicatedStorage:WaitForChild("Packages")
+local Source = ReplicatedStorage:WaitForChild("Source")
+local Features = Source:WaitForChild("Features")
+local Assets = ReplicatedStorage:WaitForChild("Assets")
+local EnemyModels = Assets:WaitForChild("Enemies")
+local GameItems = Source:WaitForChild("Game"):WaitForChild("Items")
+
+
+local rPath = Packages:WaitForChild("_Index"):WaitForChild("leifstout_networker@0.3.1"):WaitForChild("networker"):WaitForChild("_remotes")
+local function getRemote(s) return rPath:WaitForChild(s):WaitForChild("RemoteFunction") end
+
+
+local Remotes = {
+    Rebirth = getRemote("RebirthService"), Zones = getRemote("ZonesService"),
+    Inventory = getRemote("InventoryService"), Roll = getRemote("RollService"),
+    Loot = getRemote("LootService"), Crafting = getRemote("CraftingService"),
+    Boost = getRemote("BoostService"), Index = getRemote("IndexService"),
+    Upgrade = getRemote("UpgradeService"),
+}
+
+
+local Modules = {
+    DataServiceClient = require(Packages:WaitForChild("DataService")).client,
+    UpgradeTree = require(Features:WaitForChild("Upgrades"):WaitForChild("UpgradeTree")),
+    UpgradeCounterUtils = require(Features:WaitForChild("Upgrades"):WaitForChild("UpgradeCounterUtils")),
+    BoostServiceUtils = require(Features:WaitForChild("Boosts"):WaitForChild("BoostServiceUtils")),
+    CraftingServiceUtils = require(Features:WaitForChild("Crafting"):WaitForChild("CraftingServiceUtils")),
+    InventoryItemUtils = require(Features:WaitForChild("Inventory"):WaitForChild("InventoryItemUtils")),
+    RebirthServiceUtils = require(Features:WaitForChild("Rebirth"):WaitForChild("RebirthServiceUtils")),
+    AutoRejoinServiceClient = require(Features:WaitForChild("AutoRejoin"):WaitForChild("AutoRejoinServiceClient")),
+    Zones = require(GameItems:WaitForChild("Zones")),
+    Slimes = require(GameItems:WaitForChild("Slimes"))
+}
+
+
+local UpgradeQueue = {}
+for _, tree in pairs(Modules.UpgradeTree) do
+    for _, upgradeData in pairs(tree) do
+        if type(upgradeData) == "table" and upgradeData.id and upgradeData.cost then
+            table.insert(UpgradeQueue, upgradeData)
+        end
+    end
+end
+table.sort(UpgradeQueue, function(a, b)
+    local aLayers, bLayers = a.layers or 0, b.layers or 0
+    if aLayers ~= bLayers then return aLayers < bLayers end
+    local aCost, bCost = a.cost and a.cost.amount or math.huge, b.cost and b.cost.amount or math.huge
+    if aCost ~= bCost then return aCost < bCost end
+    return tostring(a.id) < tostring(b.id)
+end)
+
+
+local SlimeNames = {}
+for _, slimeData in ipairs(Modules.Slimes.getSortedSlimes()) do
+    if type(slimeData) == "table" and slimeData.id then
+        SlimeNames[slimeData.id] = slimeData.name or normalizeDisplayName(slimeData.id)
+    end
+end
+
+
+local Toggles = {
+    AutoMob = false, AutoLoot = false, AutoRecipe = false, AutoCraft = false, AutoBoost = false, AutoIndex = false,
+    Rebirth = false, Zones = false, Equip = false, Roll = false, AutoUpgrade = false,
+    Noclip = false, InfiniteJump = false, AntiRagdoll = false, AutoArea = false, AutoFeed = false,
+    EnemyInfoTags = false, EnemyHighlights = false, FakeDamageShowcase = false, FakeAttackShowcase = false,
+    DisableAutoRejoin = false
+}
+local Settings = { TweenSpeed = 75, WalkSpeed = 16, JumpPower = 50 }
+local pauseMobTweenUntil = 0
+local FeedEquippedIndex = 1
+local LastHatchedText = "None"
+
+
+local function loop(key, fn, delay)
+    task.spawn(function()
+        while true do
+            if Toggles[key] then pcall(fn) end
+            task.wait(delay)
+        end
+    end)
+end
+
+
+loop("DisableAutoRejoin", function()
+    pcall(function() Modules.AutoRejoinServiceClient:disable() end)
+end, 5)
+
+
+loop("Rebirth",  function() Remotes.Rebirth:InvokeServer("requestRebirth") end, 1)
+loop("Zones",    function() Remotes.Zones:InvokeServer("requestPurchaseZone") end, 0.5)
+loop("Equip",    function() Remotes.Inventory:InvokeServer("requestEquipBest") end, 2)
+
+
+loop("Roll", function()
+    local ok, results = pcall(function() return Remotes.Roll:InvokeServer("requestRoll") end)
+    if ok and type(results) == "table" then
+        local hatched = {}
+        for _, column in ipairs(results) do
+            if type(column) == "table" then
+                for i = #column, 1, -1 do
+                    local rollEntry = column[i]
+                    if type(rollEntry) == "table" and rollEntry.id then
+                        table.insert(hatched, SlimeNames[rollEntry.id] or normalizeDisplayName(rollEntry.id))
+                        break
+                    end
+                end
+            end
+        end
+        if #hatched > 0 then LastHatchedText = table.concat(hatched, ", ") end
+    end
+end, 0.2)
+
+
+loop("AutoUpgrade", function()
+    local ownedUpgrades = Modules.DataServiceClient:get("upgrades") or {}
+    local function getCurrency(curr) return tonumber(Modules.DataServiceClient:get(curr)) or 0 end
+
+
+    for _, upgradeData in ipairs(UpgradeQueue) do
+        if Modules.UpgradeCounterUtils.canPurchase(upgradeData, ownedUpgrades, getCurrency) then
+            pcall(function() Remotes.Upgrade:InvokeServer("requestUnlock", upgradeData.id) end)
+            task.wait(0.1)
+            break
+        end
+    end
+end, 0.35)
+
+
+local function getInventoryData() return Modules.DataServiceClient:get("inventory") or {} end
+loop("AutoCraft", function()
+    local inventory = getInventoryData()
+    local craftingRecipes = Modules.DataServiceClient:get("craftingRecipes") or {}
+    local unlocks = Modules.DataServiceClient:get("unlocks") or {}
+
+
+    if Modules.CraftingServiceUtils.isMachineUnlocked(unlocks) then
+        for _, recipe in ipairs(Modules.CraftingServiceUtils.getRecipes()) do
+            if Modules.CraftingServiceUtils.isRecipeOwned(craftingRecipes, recipe.id) then
+                local selectedSlimes, usedAmounts = {}, {}
+                local valid = true
+                for _, ingredient in ipairs(recipe.inputs) do
+                    local entries = Modules.CraftingServiceUtils.getIngredientInventoryEntries(ingredient, inventory)
+                    local selectedUniqueId = nil
+                    for _, entry in ipairs(entries or {}) do
+                        if entry.uniqueId and (tonumber(entry.ownedAmount) or 0) - (usedAmounts[entry.uniqueId] or 0) > 0 then
+                            selectedUniqueId = entry.uniqueId
+                            break
+                        end
+                    end
+                    if not selectedUniqueId then valid = false break end
+                    usedAmounts[selectedUniqueId] = (usedAmounts[selectedUniqueId] or 0) + 1
+                    table.insert(selectedSlimes, selectedUniqueId)
+                end
+                if valid then
+                    pcall(function() Remotes.Crafting:InvokeServer("requestCraftRecipe", recipe.id, selectedSlimes, 1) end)
+                    task.wait(0.15)
+                end
+            end
+        end
+    end
+end, 1)
+
+
+loop("AutoFeed", function()
+    local equipped = Modules.DataServiceClient:get("equippedSlimes") or Modules.DataServiceClient:get("equipped") or getInventoryData().equippedSlimes or {}
+    local list = {}
+    for _, uniqueId in pairs(equipped) do if uniqueId then table.insert(list, uniqueId) end end
+    
+    if #list <= 0 then return end
+    
+    local boosts = Modules.BoostServiceUtils.reconcileBoosts(Modules.DataServiceClient:get("boosts"))
+    local items = Modules.DataServiceClient:get("items") or getInventoryData().items or {}
+    local consumables = Modules.InventoryItemUtils.getConsumableEntries(boosts, items)
+    
+    local bestFoodId, bestAmount = nil, 0
+    for itemId, entry in pairs(consumables) do
+        if type(entry.definition) == "table" and entry.definition.kind == "food" and (tonumber(entry.amountOwned) or 0) > bestAmount then
+            bestFoodId = itemId
+            bestAmount = tonumber(entry.amountOwned)
+        end
+    end
+
+
+    if bestFoodId and bestAmount > 0 then
+        local index = ((FeedEquippedIndex - 1) % #list) + 1
+        local success = pcall(function() Remotes.Inventory:InvokeServer("requestUseFood", bestFoodId, list[index], 1) end)
+        if success then 
+            FeedEquippedIndex = (index % #list) + 1
+            task.wait(0.08)
+        end
+    end
+end, 1)
+
+
+loop("AutoBoost", function()
+    for _, b in ipairs({"rollSpeed", "luck", "ultraLuck", "coins"}) do
+        Remotes.Boost:InvokeServer("requestUseBoost", b)
+        task.wait(0.1)
+    end
+end, 5)
+
+
+loop("AutoLoot", function()
+    for _, name in ipairs({"Drops","Loot","Coins","Collectibles"}) do
+        local f = workspace:FindFirstChild(name)
+        if f then
+            for _, d in ipairs(f:GetChildren()) do
+                Remotes.Loot:InvokeServer("requestCollect", d.Name)
+            end
+            break
+        end
+    end
+end, 0.5)
+
+
+loop("AutoRecipe", function()
+    local zf = workspace:FindFirstChild("Zones") or workspace:FindFirstChild("Areas")
+    if not zf and workspace:FindFirstChild("Gameplay101") then zf = workspace.Gameplay101:FindFirstChild("Zones") end
+    if zf then
+        for _, z in ipairs(zf:GetChildren()) do
+            local r = z:FindFirstChild("Recipe")
+            if r then Remotes.Crafting:InvokeServer("requestClaimRecipe", "crafty", r) end
+        end
+    end
+end, 3)
+
+
+loop("AutoIndex", function()
+    for _, rewardType in ipairs({"basic", "shiny", "big", "huge", "inverted"}) do
+        Remotes.Index:InvokeServer("requestClaimReward", rewardType)
+        task.wait(0.2)
+    end
+end, 5)
+
+
+local function getHighestUnlockedZone()
+    local zones = workspace:FindFirstChild("Zones") or workspace:FindFirstChild("Areas")
+    if not zones then return nil end
+    local highest = 0
+    for _, zone in ipairs(zones:GetChildren()) do
+        local zoneNum = tonumber(zone.Name)
+        if zoneNum then
+            local gate = zone:FindFirstChild("Gate")
+            if gate and gate:FindFirstChild("Back") and not gate.Back.CanCollide then
+                if zoneNum > highest then highest = zoneNum end
+            end
+        end
+    end
+    local target = highest + 1
+    if zones:FindFirstChild(tostring(target)) then return target end
+    return highest > 0 and highest or nil
+end
+
+
+local cachedZoneCFrames = {}
+local function getZoneCFrame(zoneNum)
+    if cachedZoneCFrames[zoneNum] then return cachedZoneCFrames[zoneNum] end
+    local zones = workspace:FindFirstChild("Zones") or workspace:FindFirstChild("Areas")
+    if not zones then return nil end
+    local zone = zones:FindFirstChild(tostring(zoneNum))
+    if not zone then return nil end
+    
+    local poi = zone:FindFirstChild("POI")
+    if poi and poi:FindFirstChildWhichIsA("BasePart", true) then 
+        cachedZoneCFrames[zoneNum] = poi:FindFirstChildWhichIsA("BasePart", true).CFrame + Vector3.new(0, 6, 0)
+        return cachedZoneCFrames[zoneNum]
+    end
+    
+    local bigPart, bigSize = nil, 0
+    for _, p in ipairs(zone:GetDescendants()) do
+        if p:IsA("BasePart") and not p.Name:lower():find("hitbox") then
+            local vol = p.Size.X * p.Size.Z
+            if vol > bigSize then bigSize = vol; bigPart = p end
+        end
+    end
+    
+    if bigPart then
+        cachedZoneCFrames[zoneNum] = bigPart.CFrame + Vector3.new(0, 6, 0)
+        return cachedZoneCFrames[zoneNum]
+    end
+    return nil
+end
+
+
+local function getAvailableZonesList()
+    local zList = {}
+    local zones = workspace:FindFirstChild("Zones") or workspace:FindFirstChild("Areas")
+    if zones then
+        for _, z in ipairs(zones:GetChildren()) do
+            if tonumber(z.Name) then table.insert(zList, z.Name) end
+        end
+    end
+    table.sort(zList, function(a,b) return tonumber(a) < tonumber(b) end)
+    if #zList == 0 then return {"1"} end
+    return zList
+end
+
+
+loop("AutoArea", function()
+    local zoneNum = getHighestUnlockedZone()
+    if zoneNum then
+        local cf = getZoneCFrame(zoneNum)
+        if cf then
+            local c = LocalPlayer.Character
+            if c and c:FindFirstChild("HumanoidRootPart") then
+                local hrp = c.HumanoidRootPart
+                local dist = (Vector3.new(hrp.Position.X, 0, hrp.Position.Z) - Vector3.new(cf.Position.X, 0, cf.Position.Z)).Magnitude
+                if dist > 100 then
+                    hrp.CFrame = cf
+                    pauseMobTweenUntil = tick() + 3
+                end
+            end
+        end
+    end
+end, 3)
+
+
+local cachedEnemyFolder, lastFolderSearch = nil, 0
+local function getEnemyFolder()
+    if cachedEnemyFolder and cachedEnemyFolder.Parent then return cachedEnemyFolder end
+    if tick() - lastFolderSearch < 3 then return nil end
+    lastFolderSearch = tick()
+    local gp = workspace:FindFirstChild("Gameplay101")
+    if gp and gp:FindFirstChild("Enemies") then cachedEnemyFolder = gp.Enemies; return cachedEnemyFolder end
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if (obj:IsA("Folder") or obj:IsA("Model")) and table.find({"Enemies","Mobs","Monsters","Live","NPCs"}, obj.Name) then
+            cachedEnemyFolder = obj; return cachedEnemyFolder
+        end
+    end
+end
+
+
+local function tweenTo(cf)
+    local c = LocalPlayer.Character
+    if not c or not c:FindFirstChild("HumanoidRootPart") then return end
+    local hrp = c.HumanoidRootPart
+    local dist = (hrp.Position - cf.Position).Magnitude
+    if dist < 3 then return end
+    
+    local tw = TweenService:Create(hrp, TweenInfo.new(math.max(dist / Settings.TweenSpeed, 0.1), Enum.EasingStyle.Linear), {CFrame = cf})
+    tw:Play()
+    
+    while tw.PlaybackState == Enum.PlaybackState.Playing do
+        if not Toggles.AutoMob or tick() < pauseMobTweenUntil then tw:Cancel() break end
+        task.wait(0.1)
+    end
+end
+
+
+local function getBestMob()
+    local folder = getEnemyFolder()
+    if not folder then return nil end
+    local best, lowestHP = nil, math.huge
+    for _, mob in ipairs(folder:GetChildren()) do
+        local rp = mob:FindFirstChild("HumanoidRootPart") or mob.PrimaryPart or mob:FindFirstChildWhichIsA("BasePart")
+        if rp then
+            local hp, alive = 0, false
+            local hum = mob:FindFirstChildOfClass("Humanoid")
+            if hum then hp = hum.Health; alive = hum.Health > 0
+            else
+                local hv = mob:FindFirstChild("Health") or mob:FindFirstChild("HP")
+                if hv and (hv:IsA("NumberValue") or hv:IsA("IntValue")) then alive = hv.Value > 0; hp = hv.Value
+                else alive = true; hp = 1 end
+            end
+            if alive and hp < lowestHP then lowestHP = hp; best = rp end
+        end
+    end
+    return best
+end
+
+
+loop("AutoMob", function()
+    if tick() >= pauseMobTweenUntil then
+        local t = getBestMob()
+        if t then tweenTo(t.CFrame * CFrame.new(0, 3, 0)) end
+    end
+end, 0.2)
+
+
+local function removeVisualType(model, visualName)
+    if not model then return end
+    for _, child in ipairs(model:GetDescendants()) do
+        if child.Name == visualName then child:Destroy() end
+    end
+end
+
+
+local function getModelPart(model)
+    return model and (model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)) or nil
+end
+
+
+task.spawn(function()
+    while true do
+        local folder = getEnemyFolder()
+        if folder then
+            for _, model in ipairs(folder:GetChildren()) do
+                if Toggles.EnemyHighlights then
+                    if not model:FindFirstChild("DuckyEnemyHighlight") then
+                        local highlight = Instance.new("Highlight")
+                        highlight.Name = "DuckyEnemyHighlight"
+                        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        highlight.FillTransparency = 0.85
+                        highlight.OutlineTransparency = 0.1
+                        highlight.Parent = model
+                    end
+                else
+                    removeVisualType(model, "DuckyEnemyHighlight")
+                end
+
+
+                if Toggles.EnemyInfoTags then
+                    local part = getModelPart(model)
+                    if part then
+                        local tag = part:FindFirstChild("DuckyEnemyTag")
+                        if not tag then
+                            tag = Instance.new("BillboardGui")
+                            tag.Name = "DuckyEnemyTag"
+                            tag.Adornee = part
+                            tag.AlwaysOnTop = true
+                            tag.Size = UDim2.new(0, 190, 0, 46)
+                            tag.StudsOffset = Vector3.new(0, 3.25, 0)
+                            tag.Parent = part
+                            local text = Instance.new("TextLabel")
+                            text.Name = "Text"
+                            text.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+                            text.BackgroundTransparency = 0.35
+                            text.TextColor3 = Color3.fromRGB(255, 255, 255)
+                            text.Size = UDim2.new(1, 0, 1, 0)
+                            text.Font = Enum.Font.GothamSemibold
+                            text.TextScaled = true
+                            text.Parent = tag
+                        end
+                        
+                        local hp, maxHp = "?", "?"
+                        local hum = model:FindFirstChildOfClass("Humanoid")
+                        if hum then hp = hum.Health; maxHp = hum.MaxHealth
+                        else
+                            local hv = model:FindFirstChild("Health") or model:FindFirstChild("HP")
+                            if hv then hp = hv.Value; maxHp = hv.Value end
+                        end
+                        tag.Text.Text = string.format("%s\nHP: %s / %s", model.Name, formatNumber(hp), formatNumber(maxHp))
+                    end
+                else
+                    removeVisualType(model, "DuckyEnemyTag")
+                end
+            end
+        end
+        task.wait(0.35)
+    end
+end)
+
+
+local ShowcaseData = { SpawnPos = 0, Options = {}, Ids = {} }
+for _, m in ipairs(EnemyModels:GetChildren()) do
+    if m:IsA("Model") then table.insert(ShowcaseData.Options, m.Name) end
+end
+table.sort(ShowcaseData.Options)
+local SelectedShowcaseEnemy = ShowcaseData.Options[1]
+
+
+local function getShowcaseFolder()
+    local f = Workspace:FindFirstChild("DuckyShowcaseFolder")
+    if not f then f = Instance.new("Folder"); f.Name = "DuckyShowcaseFolder"; f.Parent = Workspace end
+    return f
+end
+
+
+local function spawnShowcase(enemyId)
+    local asset = EnemyModels:FindFirstChild(enemyId)
+    if not asset then return end
+    local model = asset:Clone()
+    local rootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    local spawnCFrame = CFrame.new(0, 5, 0)
+    
+    if rootPart then
+        ShowcaseData.SpawnPos += 1
+        local sideOffset = ((ShowcaseData.SpawnPos - 1) % 5 - 2) * 4
+        spawnCFrame = rootPart.CFrame * CFrame.new(sideOffset, 0, -12)
+    end
+    
+    model.Name = "Showcase_" .. enemyId
+    model:SetAttribute("FakeHealth", 100)
+    model:SetAttribute("FakeMaxHealth", 100)
+    model.Parent = getShowcaseFolder()
+    if not model.PrimaryPart then model.PrimaryPart = getModelPart(model) end
+    model:PivotTo(spawnCFrame)
+    
+    local highlight = Instance.new("Highlight")
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.FillTransparency = 0.9
+    highlight.Parent = model
+end
+
+
+task.spawn(function()
+    while true do
+        if Toggles.FakeDamageShowcase or Toggles.FakeAttackShowcase then
+            local f = Workspace:FindFirstChild("DuckyShowcaseFolder")
+            if f then
+                for _, model in ipairs(f:GetChildren()) do
+                    if Toggles.FakeDamageShowcase then
+                        local hp = model:GetAttribute("FakeHealth") or 100
+                        local maxHp = model:GetAttribute("FakeMaxHealth") or 100
+                        local dmg = math.max(1, math.floor(maxHp * 0.035))
+                        hp -= dmg
+                        if hp <= 0 then hp = maxHp end
+                        model:SetAttribute("FakeHealth", hp)
+                        
+                        local part = getModelPart(model)
+                        if part then
+                            local hit = Instance.new("BillboardGui")
+                            hit.AlwaysOnTop = true
+                            hit.Size = UDim2.new(0, 90, 0, 36)
+                            hit.StudsOffset = Vector3.new(math.random(-2, 2), 3 + math.random(), 0)
+                            hit.Parent = part
+                            local text = Instance.new("TextLabel")
+                            text.BackgroundTransparency = 1
+                            text.Size = UDim2.new(1, 0, 1, 0)
+                            text.Font = Enum.Font.GothamBlack
+                            text.TextColor3 = Color3.fromRGB(255, 90, 120)
+                            text.TextScaled = true
+                            text.Text = "-" .. formatNumber(dmg)
+                            text.Parent = hit
+                            task.delay(0.55, function() if hit then hit:Destroy() end end)
+                        end
+                    end
+                    if Toggles.FakeAttackShowcase and LocalPlayer.Character and LocalPlayer.Character.PrimaryPart then
+                        local part = getModelPart(model)
+                        if part then
+                            local look = CFrame.new(part.Position, Vector3.new(LocalPlayer.Character.PrimaryPart.Position.X, part.Position.Y, LocalPlayer.Character.PrimaryPart.Position.Z))
+                            model:PivotTo(look * CFrame.new(0, 0, -0.35))
+                            task.delay(0.08, function() if model.Parent then model:PivotTo(look) end end)
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(0.35)
+    end
+end)
+
+
+-- UI Element mapping for the Config System
+local UI_Elements = { Toggles = {}, Sliders = {} }
+local ConfigFile = "DuckyHub_Config.json"
+local AL_FILE = "DuckyHub_AutoLoad.txt"
+
+
+local function SaveConfig()
+    if writefile then
+        local data = { T = Toggles, S = Settings }
+        pcall(function() writefile(ConfigFile, HttpService:JSONEncode(data)) end)
+        -- Notification handled by the button callback
+    end
+end
+
+
+local function LoadConfig()
+    if readfile and isfile(ConfigFile) then
+        local s, res = pcall(function() return HttpService:JSONDecode(readfile(ConfigFile)) end)
+        if s and res then
+            if res.T then
+                for k, v in pairs(res.T) do
+                    if UI_Elements.Toggles[k] then
+                        UI_Elements.Toggles[k]:Set(v)
+                    end
+                end
+            end
+            if res.S then
+                for k, v in pairs(res.S) do
+                    if UI_Elements.Sliders[k] then
+                        UI_Elements.Sliders[k]:Set(v)
+                    end
+                end
+            end
+        end
+    end
+end
+
+
+local function loadMainHub()
+    local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+
+    local Window = Rayfield:CreateWindow({
+        Name = "Ducky Hub | Advanced",
+        LoadingTitle = "Loading Ducky Hub...",
+        LoadingSubtitle = "by Aditya",
+        ConfigurationSaving = { Enabled = false }, -- Native disabled so we use custom 100% visible one
+        Discord = { Enabled = true, Invite = "s6qfm7uycS", RememberJoins = true },
+        KeySystem = false 
+    })
+
+
+    local TabContact  = Window:CreateTab("Contact & Info",4483362458)
+    local TabFarm     = Window:CreateTab("Combat & Farm", 4483362458)
+    local TabCollect  = Window:CreateTab("Loot & Boosts", 4483362458)
+    local TabTeleport = Window:CreateTab("Teleports",     4483362458)
+    local TabVisuals  = Window:CreateTab("Visuals",       4483362458)
+    local TabPlayer   = Window:CreateTab("Player",        4483362458)
+    local TabMisc     = Window:CreateTab("Misc",          4483362458)
+    local TabConfig   = Window:CreateTab("Config & Save", 4483362458)
+
+
+    -- =============== CONTACT & INFO TAB ===============
+    TabContact:CreateSection("Bio")
+    TabContact:CreateParagraph({
+        Title = "Welcome to Ducky!",
+        Content = "Ducky is a premium, lag-free script hub designed to give you the absolute best experience. We believe in keeping things free, safe, and powerful."
+    })
+
+
+    TabContact:CreateSection("Team")
+    TabContact:CreateLabel("👨‍💻 Developer: Aditya")
+    TabContact:CreateLabel("👑 Owner: Big Bean")
+
+
+    TabContact:CreateSection("Community")
+    TabContact:CreateButton({
+        Name = "Copy Discord Invite",
+        Callback = function()
+            pcall(function() 
+                setclipboard("https://discord.gg/s6qfm7uycS") 
+            end)
+            Rayfield:Notify({
+                Title = "Copied!",
+                Content = "Discord invite copied to clipboard.",
+                Duration = 3
+            })
+        end
+    })
+    TabContact:CreateLabel("Link: discord.gg/s6qfm7uycS")
+
+
+    -- =============== COMBAT & FARM TAB ===============
+    local ProgressionParagraph = TabFarm:CreateParagraph({Title = "📊 Live Progression Tracking", Content = "Loading stats..."})
+    
+    TabFarm:CreateSection("Combat")
+    UI_Elements.Toggles.AutoMob = TabFarm:CreateToggle({ Name = "Auto Tween Mobs (Lowest HP)", CurrentValue = false, Flag = "AutoMobToggle", Callback = function(V) Toggles.AutoMob = V end })
+    UI_Elements.Sliders.TweenSpeed = TabFarm:CreateSlider({ Name = "Tween Speed", Range = {10, 300}, Increment = 1, Suffix = "Speed", CurrentValue = 75, Flag = "TweenSpeedSlider", Callback = function(V) Settings.TweenSpeed = V end })
+
+
+    TabFarm:CreateSection("Progression")
+    local LastRolledLabel = TabFarm:CreateLabel("🎲 Last Rolled: None")
+    
+    UI_Elements.Toggles.Roll = TabFarm:CreateToggle({ Name = "Auto Roll", CurrentValue = false, Flag = "RollT", Callback = function(V) Toggles.Roll = V end })
+    UI_Elements.Toggles.Rebirth = TabFarm:CreateToggle({ Name = "Auto Rebirth", CurrentValue = false, Flag = "RebirthT", Callback = function(V) Toggles.Rebirth = V end })
+    UI_Elements.Toggles.Zones = TabFarm:CreateToggle({ Name = "Auto Buy Zones", CurrentValue = false, Flag = "ZonesT", Callback = function(V) Toggles.Zones = V end })
+    UI_Elements.Toggles.AutoUpgrade = TabFarm:CreateToggle({ Name = "Smart Auto Upgrade", CurrentValue = false, Flag = "UpgradeT", Callback = function(V) Toggles.AutoUpgrade = V end })
+    UI_Elements.Toggles.Equip = TabFarm:CreateToggle({ Name = "Auto Equip Best", CurrentValue = false, Flag = "EquipT", Callback = function(V) Toggles.Equip = V end })
+
+
+    task.spawn(function()
+        while true do
+            pcall(function()
+                local coins = tonumber(Modules.DataServiceClient:get("coins")) or 0
+                local goop = tonumber(Modules.DataServiceClient:get("goop")) or 0
+                local rebirths = tonumber(Modules.DataServiceClient:get("rebirths")) or 0
+                local maxZone = tonumber(Modules.DataServiceClient:get("maxZone")) or 1
+
+
+                local nextZoneId = maxZone + 1
+                local nextZoneData = Modules.Zones.hasZone(nextZoneId) and Modules.Zones.getZone(nextZoneId)
+                local zoneCostText = nextZoneData and formatNumber(nextZoneData.price) or "Maxed"
+
+
+                local rebirthCostText = formatNumber(Modules.RebirthServiceUtils.getCost(rebirths))
+                
+                ProgressionParagraph:Set({
+                    Title = "📊 Live Progression Tracking",
+                    Content = string.format(
+                        "💰 Coins: %s / %s (Next Zone Cost)\n\n🧪 Goop: %s / %s (Next Rebirth Cost)\n\n♻️ Rebirths: %s\n\n🗺️ Max Zone Unlocked: %s",
+                        formatNumber(coins), zoneCostText,
+                        formatNumber(goop), rebirthCostText,
+                        formatNumber(rebirths),
+                        maxZone
+                    )
+                })
+                
+                LastRolledLabel:Set("🎲 Last Rolled: " .. LastHatchedText)
+            end)
+            task.wait(1)
+        end
+    end)
+
+
+    -- =============== LOOT & BOOSTS TAB ===============
+    TabCollect:CreateSection("Drops & Crafting")
+    UI_Elements.Toggles.AutoLoot = TabCollect:CreateToggle({ Name = "Auto Collect Drops", CurrentValue = false, Flag = "LootT", Callback = function(V) Toggles.AutoLoot = V end })
+    UI_Elements.Toggles.AutoRecipe = TabCollect:CreateToggle({ Name = "Auto Claim Recipes", CurrentValue = false, Flag = "RecipeT", Callback = function(V) Toggles.AutoRecipe = V end })
+    UI_Elements.Toggles.AutoCraft = TabCollect:CreateToggle({ Name = "Smart Auto Craft", CurrentValue = false, Flag = "CraftT", Callback = function(V) Toggles.AutoCraft = V end })
+
+
+    TabCollect:CreateSection("Pets & Rewards")
+    UI_Elements.Toggles.AutoIndex = TabCollect:CreateToggle({ Name = "Auto Claim Index Rewards", CurrentValue = false, Flag = "IndexT", Callback = function(V) Toggles.AutoIndex = V end })
+    UI_Elements.Toggles.AutoFeed = TabCollect:CreateToggle({ Name = "Auto Feed Equipped", CurrentValue = false, Flag = "FeedT", Callback = function(V) Toggles.AutoFeed = V end })
+    UI_Elements.Toggles.AutoBoost = TabCollect:CreateToggle({ Name = "Auto Use Boosts", CurrentValue = false, Flag = "BoostT", Callback = function(V) Toggles.AutoBoost = V end })
+
+
+    -- =============== TELEPORTS TAB ===============
+    TabTeleport:CreateSection("Zone Selector & Teleport")
+    local SelectedZone = "1"
+    local ZoneDropdown = TabTeleport:CreateDropdown({
+        Name = "Select Map / Zone",
+        Options = getAvailableZonesList(),
+        CurrentOption = {"1"},
+        MultipleOptions = false,
+        Flag = "ZoneDropdown",
+        Callback = function(Option) SelectedZone = Option[1] end,
+    })
+    TabTeleport:CreateButton({ Name = "Refresh Zone List", Callback = function() ZoneDropdown:Refresh(getAvailableZonesList(), true) end})
+    TabTeleport:CreateButton({ Name = "Tp to the zone", Callback = function()
+        local num = tonumber(SelectedZone)
+        if num then
+            local cf = getZoneCFrame(num)
+            if cf and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = cf
+            end
+        end
+    end})
+    TabTeleport:CreateSection("Automation & Miscellaneous")
+    UI_Elements.Toggles.AutoArea = TabTeleport:CreateToggle({ Name = "Auto Teleport to Max Area", CurrentValue = false, Flag = "AutoArea", Callback = function(V) Toggles.AutoArea = V end })
+    TabTeleport:CreateButton({ Name = "Teleport to Spawn", Callback = function()
+        local spawn = workspace:FindFirstChildWhichIsA("SpawnLocation")
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and spawn then LocalPlayer.Character.HumanoidRootPart.CFrame = spawn.CFrame + Vector3.new(0,5,0) end
+    end})
+
+
+    -- =============== VISUALS TAB ===============
+    TabVisuals:CreateSection("Enemy ESP")
+    UI_Elements.Toggles.EnemyInfoTags = TabVisuals:CreateToggle({ Name = "Enemy Info Tags (Shows exact HP)", CurrentValue = false, Flag = "EnemyInfoTags", Callback = function(V) Toggles.EnemyInfoTags = V end })
+    UI_Elements.Toggles.EnemyHighlights = TabVisuals:CreateToggle({ Name = "Enemy Highlights", CurrentValue = false, Flag = "EnemyHighlights", Callback = function(V) Toggles.EnemyHighlights = V end })
+
+
+    TabVisuals:CreateSection("Enemy Showcase (Client-Side Only)")
+    TabVisuals:CreateDropdown({
+        Name = "Select Enemy to Spawn",
+        Options = ShowcaseData.Options,
+        CurrentOption = {ShowcaseData.Options[1]},
+        MultipleOptions = false,
+        Flag = "ShowcaseDrop",
+        Callback = function(Option) SelectedShowcaseEnemy = Option[1] end,
+    })
+    TabVisuals:CreateButton({ Name = "Spawn Selected Enemy", Callback = function() spawnShowcase(SelectedShowcaseEnemy) end })
+    TabVisuals:CreateButton({ Name = "Clear Spawned Enemies", Callback = function()
+        local f = Workspace:FindFirstChild("DuckyShowcaseFolder")
+        if f then f:Destroy() ShowcaseData.SpawnPos = 0 end
+    end })
+    
+    UI_Elements.Toggles.FakeDamageShowcase = TabVisuals:CreateToggle({ Name = "Fake Damage Spawned Enemy", CurrentValue = false, Flag = "FakeDamageShowcase", Callback = function(V) Toggles.FakeDamageShowcase = V end })
+    UI_Elements.Toggles.FakeAttackShowcase = TabVisuals:CreateToggle({ Name = "Fake Enemy Attack Visuals", CurrentValue = false, Flag = "FakeAttackShowcase", Callback = function(V) Toggles.FakeAttackShowcase = V end })
+
+
+    -- =============== PLAYER TAB ===============
+    TabPlayer:CreateSection("Character Modifiers")
+    UI_Elements.Toggles.Noclip = TabPlayer:CreateToggle({ Name = "Noclip", CurrentValue = false, Flag = "NoclipT", Callback = function(V) Toggles.Noclip = V end })
+    UI_Elements.Toggles.InfiniteJump = TabPlayer:CreateToggle({ Name = "Infinite Jump", CurrentValue = false, Flag = "InfJT", Callback = function(V) Toggles.InfiniteJump = V end })
+    UI_Elements.Toggles.AntiRagdoll = TabPlayer:CreateToggle({ Name = "Anti Ragdoll", CurrentValue = false, Flag = "RagT", Callback = function(V) Toggles.AntiRagdoll = V end })
+    UI_Elements.Sliders.WalkSpeed = TabPlayer:CreateSlider({ Name = "Walk Speed", Range = {16, 250}, Increment = 1, CurrentValue = 16, Flag = "WSSlider", Callback = function(V) Settings.WalkSpeed = V end })
+    UI_Elements.Sliders.JumpPower = TabPlayer:CreateSlider({ Name = "Jump Power", Range = {50, 500}, Increment = 1, CurrentValue = 50, Flag = "JPSlider", Callback = function(V) Settings.JumpPower = V end })
+
+
+    -- =============== MISC TAB ===============
+    TabMisc:CreateSection("Game Settings")
+    UI_Elements.Toggles.DisableAutoRejoin = TabMisc:CreateToggle({ Name = "Disable Game Auto-Rejoin", CurrentValue = false, Flag = "AutoRejoinT", Callback = function(V) 
+        Toggles.DisableAutoRejoin = V 
+        if not V then pcall(function() Modules.AutoRejoinServiceClient:enable() end) end
+    end })
+
+
+    TabMisc:CreateSection("Performance & AFK")
+    TabMisc:CreateToggle({ Name = "Black Screen (Anti-Lag)", CurrentValue = false, Flag = "BlackScreen", Callback = function(V) 
+        blackScreenGui.Enabled = V
+        pcall(function() RunService:Set3dRenderingEnabled(not V) end)
+    end })
+
+
+    TabMisc:CreateSection("Server Actions")
+    TabMisc:CreateButton({ Name = "Server Hop",      Callback = function() ServerHop() end })
+    TabMisc:CreateButton({ Name = "Rejoin Server",   Callback = function() RejoinServer() end })
+    TabMisc:CreateButton({ Name = "Reset Character", Callback = function()
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then LocalPlayer.Character.Humanoid.Health = 0 end
+    end })
+
+
+    TabMisc:CreateSection("System")
+    TabMisc:CreateButton({ Name = "Unload UI", Callback = function() 
+        blackScreenGui:Destroy()
+        pcall(function() RunService:Set3dRenderingEnabled(true) end)
+        Rayfield:Destroy() 
+    end })
+
+
+    -- =============== CONFIG & SAVE TAB ===============
+    TabConfig:CreateSection("Save & Load Settings")
+    
+    TabConfig:CreateButton({ Name = "Save Configuration", Callback = function()
+        SaveConfig()
+        Rayfield:Notify({Title="Saved!", Content="Your settings have been saved successfully.", Duration=3})
+    end})
+    
+    TabConfig:CreateButton({ Name = "Load Configuration", Callback = function()
+        LoadConfig()
+        Rayfield:Notify({Title="Loaded!", Content="Your settings have been applied.", Duration=3})
+    end})
+    
+    TabConfig:CreateButton({ Name = "Delete Saved Configuration", Callback = function()
+        if delfile and isfile(ConfigFile) then 
+            pcall(delfile, ConfigFile)
+            Rayfield:Notify({Title="Deleted", Content="Saved config has been deleted.", Duration=3}) 
+        end
+    end})
+
+
+    TabConfig:CreateSection("Automation")
+    TabConfig:CreateToggle({ Name = "Auto-Load Config on Launch", CurrentValue = isfile and isfile(AL_FILE), Flag = "AutoLoadT", Callback = function(V)
+        if V then
+            if writefile then pcall(writefile, AL_FILE, "true") end
+        else
+            if delfile and isfile(AL_FILE) then pcall(delfile, AL_FILE) end
+        end
+    end})
+
+
+    -- Execute Auto-Load if file exists
+    if isfile and isfile(AL_FILE) then
+        task.spawn(function()
+            task.wait(1)
+            LoadConfig()
+            Rayfield:Notify({Title="Auto-Loaded", Content="Your settings were automatically loaded.", Duration=4})
+        end)
+    end
+
+
+end
+
+
+loadMainHub()
